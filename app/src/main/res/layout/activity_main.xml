@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:background="@drawable/facedetectbg4"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/ClassName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="75dp"
+        android:layout_marginRight="80dp"
+        android:text=""
+        android:textSize="22sp"
+        android:textStyle="bold" />
+    <Button
+        android:id="@+id/GalleryButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="60dp"
+        android:layout_marginTop="130dp"
+        android:text="Photo Gallery" />
+
+    <Button
+        android:id="@+id/RecognizeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="60dp"
+        android:layout_marginTop="180dp"
+        android:text="Recognize" />
+
+    <Button
+        android:id="@+id/InputFaceButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="230dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="60dp"
+        android:text="Input Face"
+        />
+
+    <Button
+        android:id="@+id/AttendListButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="280dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="60dp"
+        android:text="Attendance List"
+        />
+
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/EmailButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="60dp"
+        app:srcCompat="@android:drawable/sym_action_email" />
+
+
+</RelativeLayout>
