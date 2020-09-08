@@ -99,7 +99,7 @@ public class TFLiteAPIModel
         String line;
 
         while ((line = buffread.readLine()) != null) {
-            Log.d("TensorFlowLite","model reading :"+line);
+           // Log.d("TensorFlowLite","model reading :"+line);
             mymodel.labels.add(line);
         }
         buffread.close();
@@ -160,7 +160,7 @@ public class TFLiteAPIModel
         float[][] EmbeddingOutput = new float[1][OUTPUT_SIZE];
         outputMap.put(0, EmbeddingOutput);
         embedding = EmbeddingOutput[0];
-        Log.d("FaceRecognizer Method","output from OutputMap, embedding size "+embedding.length);
+        //Log.d("FaceRecognizer Method","output from OutputMap, embedding size "+embedding.length);
 
         // start mapping inputs with outputs, loading info into embeddings
         tfLite.runForMultipleInputsOutputs(inputArray, outputMap);
@@ -173,14 +173,14 @@ public class TFLiteAPIModel
 
         //If database stored any face information, start looking up and get Name + Distance
         if (ImageDatabase.size() > 0) {
-            Log.d(TAG,"Database SIZE: " + ImageDatabase.size());
+            //Log.d(TAG,"Database SIZE: " + ImageDatabase.size());
             //Start look up embedding info to get nearest data point and return recognition info.
             final Pair<String, Float> nearest = LookUp(embedding);
             if (nearest != null) {
                 final String name = nearest.first;
                 label = name;
                 distance = nearest.second;
-                Log.d(TAG,"nearest: " + name + " - distance: " + distance);
+                //Log.d(TAG,"nearest: " + name + " - distance: " + distance);
             }
         }
 
@@ -191,7 +191,7 @@ public class TFLiteAPIModel
             label = InputName;
             NumofIDs++;
         }
-        Log.d(TAG,"FaceRecognizer finishes working...........");
+        //Log.d(TAG,"FaceRecognizer finishes working...........");
 
         // Create new recognition instance to save output info
         Recognition rec = new Recognition(id,label,distance,feature);
@@ -204,7 +204,7 @@ public class TFLiteAPIModel
     // and returns the pair <id, distance>
     //--------------------------------------------------------------------------------------------//
     private Pair<String, Float> LookUp(float[] emb) {
-        Log.d("Lookup method","start looking up");
+        //Log.d("Lookup method","start looking up");
         Pair<String, Float> output = null;
 
         for (Map.Entry<Recognition,String> entry : ImageDatabase.entrySet()) {
@@ -216,7 +216,7 @@ public class TFLiteAPIModel
             for(float f:knownEmb){
                 test = test + String.format(" %f",f);
             }
-            Log.d("Lookup method"," featurelist for "+name+" ID"+ID+"is: "+test );
+            //Log.d("Lookup method"," featurelist for "+name+" ID"+ID+"is: "+test );
             float distance = 0;
             test = "";
             for (int i = 0; i < emb.length; i++) {
@@ -224,7 +224,7 @@ public class TFLiteAPIModel
                 //test = test + String.format(" %f",diff);
                 distance += diff*diff;
             }
-            Log.d("Lookup method"," different list is:"+test);
+          //  Log.d("Lookup method"," different list is:"+test);
             distance = (float) Math.sqrt(distance);
             Log.d("Lookup method"," distance is"+distance);
             if (output == null || distance < output.second) {

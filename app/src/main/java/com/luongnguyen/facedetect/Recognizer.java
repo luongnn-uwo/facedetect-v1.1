@@ -45,6 +45,7 @@ import static com.luongnguyen.facedetect.MainActivity.myRecognition;
 import static com.luongnguyen.facedetect.Methods.AttendanceList;
 import static com.luongnguyen.facedetect.Methods.GALLERY_FOLDER;
 import static com.luongnguyen.facedetect.Methods.UpdateAttendance;
+import static com.luongnguyen.facedetect.Methods.WriteDatabase;
 
 
 public class Recognizer extends AppCompatActivity implements View.OnClickListener, CameraBridgeViewBase.CvCameraViewListener2 {
@@ -86,10 +87,6 @@ public class Recognizer extends AppCompatActivity implements View.OnClickListene
         mRgba1 = inputFrame.rgba();
         mGrey1 = inputFrame.gray();
         List<String> ShowUpName = new ArrayList<String>();
-        boolean batchmode = false;
-        if(isTouch){
-            batchmode = true;
-        }
 
         //FACE DETECTION AND DRAW BOUNDING BOX
         MatOfRect faceDetections = new MatOfRect();
@@ -144,16 +141,15 @@ public class Recognizer extends AppCompatActivity implements View.OnClickListene
             Log.d("inside batch recognize", "just add " +PredictedName);
             Log.d("inside batch recognize", "showup name size: " +ShowUpName.size());
         }
-        if(batchmode) {
-            Log.d("inside batch recognize", "batch mode flag is now " + "true");
-        } else {
-            Log.d("inside batch recognize","batch mode flag is now "+"false");
+        // Update list Hashmap file
+        for (String name : ShowUpName) {
+            UpdateAttendance(name, this);
         }
-        if(batchmode) {
-            for (String name : ShowUpName) {
-                UpdateAttendance(name, this);
-            }
-        }
+
+        // Saving Attendace List CSV
+        Methods.WriteCSV(AttendanceList,this,Methods.ATTENDANCELIST_FILE);
+        Log.d("Recognizer batch","Updated Attendance list CSV");
+
 
         isTouch = false;
             return mRgba1;
@@ -200,8 +196,7 @@ public class Recognizer extends AppCompatActivity implements View.OnClickListene
                         Log.d("Recognizer :","Calling Update Attendance method for name:"+RecogName.getText().toString());
                         UpdateAttendance(RecogName.getText().toString(),this);
                         // Write Attendance to CSV file
-                        Methods.WriteCSV(AttendanceList,this,Methods.ATTENDANCELIST_FILE);
-                    }
+                        }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

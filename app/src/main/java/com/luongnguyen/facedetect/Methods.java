@@ -495,11 +495,13 @@ public class Methods extends AppCompatActivity {
         boolean flag =false;
         Log.d("update attendance:","Start checking for inputname "+studentname);
         for(StudentInfo info:AttendanceList){
-            Log.d("update attendance:","looking at name"+info.getName());
+            Log.d("update attendance:","looking at name "+info.getName());
             if(info.getName().equals(studentname)){
                 info.setStatus("present");
-                //Toast.makeText(context, "Attendance was updated", Toast.LENGTH_SHORT).show();
+                Log.d("Update Attendance","name matched for"+info.getName());
                 flag =true;
+            }else{
+                Log.d("Update Attendance", info.getName()+" not machtch: "+studentname);
             }
 
         }
