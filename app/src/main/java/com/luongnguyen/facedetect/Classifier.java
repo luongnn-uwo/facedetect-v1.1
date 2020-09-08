@@ -44,9 +44,8 @@ public interface Classifier {
         private final float[] features;
 
         /** Optional location within the source image for the location of the recognized object. */
-        private RectF location;
-        private Integer color;
-        private Bitmap crop;
+
+
 
         public Recognition(
                 final String id, final String label, final float distance, final float[] features) {
@@ -54,7 +53,7 @@ public interface Classifier {
             this.label = label;
             this.distance = distance;
             this.features = features;
-            this.crop = null;
+
         }
 
         public float[] getFeature() {return features;}
@@ -95,12 +94,6 @@ public interface Classifier {
             return resultString.trim();
         }
 
-        public void setCrop(Bitmap crop) {
-            this.crop = crop;
-        }
 
-        public Bitmap getCrop() {
-            return this.crop;
-        }
     }
 }

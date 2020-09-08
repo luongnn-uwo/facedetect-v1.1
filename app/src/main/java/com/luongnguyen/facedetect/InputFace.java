@@ -123,7 +123,7 @@ public class InputFace extends AppCompatActivity implements View.OnClickListener
     //---------------------------------------------------------------------------------------------//
     // Calling Baseloadercallback method from OPENCV to assist face detection process
     //---------------------------------------------------------------------------------------------//
-    private BaseLoaderCallback baseCallback = new BaseLoaderCallback(this) {
+    public BaseLoaderCallback baseCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
             switch(status){

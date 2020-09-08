@@ -1,6 +1,7 @@
 package com.luongnguyen.facedetect;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,24 +14,30 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 import android.widget.TextView;
 
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.JavaCameraView;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.objdetect.CascadeClassifier;
+
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.luongnguyen.facedetect.Methods.DATABASE_FILE;
 import static com.luongnguyen.facedetect.Methods.DATA_FOLDER;
-import static com.luongnguyen.facedetect.Methods.Printest;
 import static com.luongnguyen.facedetect.Methods.ReadCSV;
 import static com.luongnguyen.facedetect.TFLiteAPIModel.ImageDatabase;
 import static com.luongnguyen.facedetect.Welcome.ClassID;
-import static com.luongnguyen.facedetect.Welcome.ClassPath;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private String TAG = ".ActivityMain";
-    Button RecognizeButton, InputFaceButton, GalleryButton,AttendListButton;
+
+    Button RecognizeButton, InputFaceButton, GalleryButton,AttendListButton, InputBatchButton;
     TextView ClassName;
     FloatingActionButton EmailButton;
     public static List<StudentInfo> TempList = new ArrayList<>();
@@ -43,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TF_OD_API_MODEL_FILE = "mobile_face_net.tflite";
     private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/labelmap.txt";
     public static int NumofIDs = 0;
+    public static boolean PassClassflag =false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         EmailButton = findViewById(R.id.EmailButton);
         ClassName =  findViewById(R.id.ClassName);
         AttendListButton = findViewById(R.id.AttendListButton);
+        InputBatchButton = findViewById(R.id.Inputbatch);
 
         // Set onClick action
         RecognizeButton.setOnClickListener(this);
@@ -63,13 +72,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         GalleryButton.setOnClickListener(this);
         EmailButton.setOnClickListener(this);
         AttendListButton.setOnClickListener(this);
-
+        InputBatchButton.setOnClickListener(this);
         //Set ClassID title on screen
-        //ClassPath ???
         ClassName.setText("CLASS ID: "+ClassID);
         Log.d(TAG,"start initializing Classlist");
         Methods.ProcessInputCSV(this);
-        Printest();
+        //Printest();
+
+
 
         // start loading Gallery photos
         Log.d(TAG,"start initializing Gallery with some sample pics for Demo");
@@ -115,8 +125,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.d(TAG , "No data database to read from !");
         }
 
-
-
         Toast.makeText(this , "Found  Database of size: "+ImageDatabase.size(), Toast.LENGTH_SHORT).show();
     }
 
@@ -139,10 +147,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(ListAct);
                 break;
             case R.id.EmailButton:
-                Printest();
+
                 Methods.EmailCSV(this);
                 break;
             case R.id.AttendListButton:
+
                 File filepath = this.getExternalFilesDir(null);
                 FilePicker filePicker = new FilePicker(MainActivity.this,filepath);
                 filePicker.setFileListener(new FilePicker.FileSelectedListener() {
@@ -150,22 +159,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void fileSelected(final File file) {
                         String filepath = file.getAbsolutePath();
                         if(filepath.contains("ClassList")){
-                            TempList = ReadCSV(filepath,true);
+                            PassClassflag = true;
+                            TempList = ReadCSV(filepath,PassClassflag);
+
                         }else{
-                            TempList = ReadCSV(filepath,false);
+                            PassClassflag = false;
+                            TempList = ReadCSV(filepath,PassClassflag);
                         }
 
                         Log.i("onlick attend","created templist successfully");
                         Log.i("Chosen File Name", file.getName());
                         Intent ViewFile = new Intent(MainActivity.this, CSVContent.class);
                         startActivity(ViewFile);
-
                     }
                 })
                 ;
                 filePicker.setExtension("csv");
                 filePicker.showDialog();
+                break;
 
+            case R.id.Inputbatch:
+            Log.d("MainACtivity Click","Enter touched the button");
+
+            Methods.BatchInputFace(this);
                 break;
 
         }
@@ -192,5 +208,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         return super.onOptionsItemSelected(item);
     }
+    //---------------------------------------------------------------------------------------------//
+    // Calling Baseloadercallback method from OPENCV to assist face detection process
+    //---------------------------------------------------------------------------------------------//
+
+
 
 }//end of main

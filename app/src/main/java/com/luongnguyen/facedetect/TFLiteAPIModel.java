@@ -113,7 +113,7 @@ public class TFLiteAPIModel
         mymodel.isModelQuantized = isQuantized;
 
         // Pre-allocate buffers.
-        int numBytesPerChannel;
+        int numBytesPerChannel;Map<Integer, Object> outputMap = new HashMap<>();
         if (isQuantized) {
             numBytesPerChannel = 1; // Quantized
         } else {
@@ -155,13 +155,12 @@ public class TFLiteAPIModel
 
         // Copy the input image data into TensorFlow Input Array.
         Object[] inputArray = {imgData};
-
        // Initialize embedding in relation to OutputMap to match Interpreter requirement
         Map<Integer, Object> outputMap = new HashMap<>();
         float[][] EmbeddingOutput = new float[1][OUTPUT_SIZE];
         outputMap.put(0, EmbeddingOutput);
         embedding = EmbeddingOutput[0];
-        Log.d("FaceRecofnizer Method","output from OutputMap, embedding size "+embedding.length);
+        Log.d("FaceRecognizer Method","output from OutputMap, embedding size "+embedding.length);
 
         // start mapping inputs with outputs, loading info into embeddings
         tfLite.runForMultipleInputsOutputs(inputArray, outputMap);

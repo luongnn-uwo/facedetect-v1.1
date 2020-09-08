@@ -56,6 +56,16 @@
         android:text="Attendance List"
         />
 
+    <Button
+        android:id="@+id/Inputbatch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="320dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="60dp"
+        android:text="Input Batch Mode"
+        />
+
 
 
     <android.support.design.widget.FloatingActionButton

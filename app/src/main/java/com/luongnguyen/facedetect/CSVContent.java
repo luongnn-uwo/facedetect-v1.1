@@ -12,9 +12,12 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import static com.luongnguyen.facedetect.MainActivity.PassClassflag;
+
 public class CSVContent extends AppCompatActivity {
 
     ListView mListView;
+    TextView ClassHeader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +26,12 @@ public class CSVContent extends AppCompatActivity {
         mListView = findViewById(R.id.AttendList);
         CustomAdaptor customAdaptor = new CustomAdaptor();
         mListView.setAdapter(customAdaptor);
+        ClassHeader = findViewById(R.id.ClassHeader);
+        if(PassClassflag){
+            ClassHeader.setText("CLASS LIST");
+        }else{
+            ClassHeader.setText("ATTENDANCE LIST");
+        }
 
     }
 

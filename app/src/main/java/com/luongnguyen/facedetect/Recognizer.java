@@ -35,6 +35,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.luongnguyen.facedetect.InputFace.resize_height;
 import static com.luongnguyen.facedetect.InputFace.resize_width;
@@ -83,6 +85,11 @@ public class Recognizer extends AppCompatActivity implements View.OnClickListene
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRgba1 = inputFrame.rgba();
         mGrey1 = inputFrame.gray();
+        List<String> ShowUpName = new ArrayList<String>();
+        boolean batchmode = false;
+        if(isTouch){
+            batchmode = true;
+        }
 
         //FACE DETECTION AND DRAW BOUNDING BOX
         MatOfRect faceDetections = new MatOfRect();
@@ -131,18 +138,24 @@ public class Recognizer extends AppCompatActivity implements View.OnClickListene
                 Imgproc.putText(mRgba1, PredictedName + text, new Point(posX, posY),
                         Core.FONT_HERSHEY_DUPLEX, 3, new Scalar(0, 0, 255));
 
-                if ((isTouch) && (face.tl().x <= touch_X)&&(touch_X<=face.br().x)&&(face.tl().y<= touch_Y)&&(touch_Y<=face.br().y)){  //
-
-                    // Update on Textview about Student
-                    UpdateUI(PredictedName,this);
-                    Log.d("Touch testing:"," Correct area");
-                }else if(isTouch){
-                    Log.d("Touch testing:"," Wrong area");
-                }
             }
 
+            ShowUpName.add(PredictedName);
+            Log.d("inside batch recognize", "just add " +PredictedName);
+            Log.d("inside batch recognize", "showup name size: " +ShowUpName.size());
         }
-            isTouch = false;
+        if(batchmode) {
+            Log.d("inside batch recognize", "batch mode flag is now " + "true");
+        } else {
+            Log.d("inside batch recognize","batch mode flag is now "+"false");
+        }
+        if(batchmode) {
+            for (String name : ShowUpName) {
+                UpdateAttendance(name, this);
+            }
+        }
+
+        isTouch = false;
             return mRgba1;
     }
 
@@ -182,7 +195,6 @@ public class Recognizer extends AppCompatActivity implements View.OnClickListene
         switch(v.getId()){
             case R.id.ConfirmButton:
                 try {
-                    //Show image of confirmed student from archive at corner
                     if (RecogName.getText().toString()!=""){
                         //Update attendance list
                         Log.d("Recognizer :","Calling Update Attendance method for name:"+RecogName.getText().toString());
@@ -306,5 +318,71 @@ public class Recognizer extends AppCompatActivity implements View.OnClickListene
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void singlerecognize(){
+        //FACE DETECTION AND DRAW BOUNDING BOX
+        MatOfRect faceDetections = new MatOfRect();
+        faceDetector1.detectMultiScale(mRgba1,faceDetections);
+        Rect[] facesArray = faceDetections.toArray();
+
+        for(Rect rect:facesArray){
+            Imgproc.rectangle(mRgba1, new Point(rect.x,rect.y),
+                    new Point(rect.x + rect.width, rect.y + rect.height),
+                    new Scalar(0,0,255));
+        }
+
+        //FACE RECOGNIZATION PROCESS
+
+        //Scan through all faces detected and call recognizer method
+        //take a crop of face from detected area
+        Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
+        Bitmap InputBmp = Bitmap.createBitmap(resize_width, resize_height, conf);
+        Mat InputMat = new Mat();
+
+        //Resize image before passing to Interpreter
+        for (Rect face : facesArray) {
+            //Crop the face area only
+            Rect rectCrop = new Rect(face.x, face.y, face.width, face.height);
+            Mat image_roi = new Mat(mRgba1, rectCrop);
+            Imgproc.resize(image_roi, image_roi, new Size(resize_width, resize_width));
+
+            //and resize Facepic to fit TensorflowLite Interpreter
+            Imgproc.resize(image_roi, InputMat, new Size(resize_width, resize_height));
+            Utils.matToBitmap(InputMat, InputBmp);
+
+            //Start recognizer to find name and confidence of the face
+            myRecognition = myClassifier.FaceRecognizer(InputBmp, false, "?");
+            float confidence = myRecognition.getDistance();
+
+            //Show Predicted Name on screen if confidence is high (distance < 1)
+            String text = "";
+            PredictedName = "?";
+            if (confidence < 1.0f) {
+                text = String.format("%.2f", confidence);
+                PredictedName = myRecognition.getLabel();
+                int posX = (int) Math.max(face.tl().x - 10, 0);
+                int posY = (int) Math.max(face.tl().y - 10, 0);
+
+                //Show name of predicted student on top of Bounding Box
+                Imgproc.putText(mRgba1, PredictedName + text, new Point(posX, posY),
+                        Core.FONT_HERSHEY_DUPLEX, 3, new Scalar(0, 0, 255));
+
+                if ((isTouch) && (face.tl().x <= touch_X)&&(touch_X<=face.br().x)&&(face.tl().y<= touch_Y)&&(touch_Y<=face.br().y)){  //
+
+                    // Update on Textview about Student
+                    UpdateUI(PredictedName,this);
+                    Log.d("Touch testing:"," Correct area");
+                }else if(isTouch){
+                    Log.d("Touch testing:"," Wrong area");
+                }
+            }
+
+        }
+        isTouch = false;
+
+    }
+
+
+
 
 } //end of class

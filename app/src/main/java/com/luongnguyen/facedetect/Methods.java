@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +13,14 @@ import android.util.Log;
 import android.widget.Toast;
 import com.opencsv.CSVWriter;
 import org.apache.commons.lang3.ArrayUtils;
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfRect;
+import org.opencv.core.Rect;
+import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -35,8 +45,16 @@ import java.util.Map;
 import java.util.Scanner;
 
 
+import static com.luongnguyen.facedetect.InputFace.resize_height;
+import static com.luongnguyen.facedetect.InputFace.resize_width;
+import static com.luongnguyen.facedetect.MainActivity.myClassifier;
+import static com.luongnguyen.facedetect.MainActivity.myRecognition;
+import static com.luongnguyen.facedetect.TFLiteAPIModel.ImageDatabase;
 import static com.luongnguyen.facedetect.Welcome.ClassID;
 import static com.luongnguyen.facedetect.Welcome.ClassPath;
+import static org.opencv.imgcodecs.Imgcodecs.imread;
+import static org.opencv.imgproc.Imgproc.INTER_AREA;
+import static org.opencv.imgproc.Imgproc.resize;
 
 
 public class Methods extends AppCompatActivity {
@@ -65,26 +83,54 @@ public class Methods extends AppCompatActivity {
 
         if (!GalleryPath.exists()) {
             GalleryPath.mkdir();
-            File dir1 = new File((GalleryPath.getAbsolutePath()+"/scarlet"));
-            dir1.mkdir();
+
             File dir2 = new File((GalleryPath.getAbsolutePath()+"/brad"));
             dir2.mkdir();
-            File dir3 = new File((GalleryPath.getAbsolutePath()+"/chadwick"));
+            File dir3 = new File((GalleryPath.getAbsolutePath()+"/galgadot"));
             dir3.mkdir();
+            File dir4 = new File((GalleryPath.getAbsolutePath()+"/leonardo"));
+            dir4.mkdir();
+            File dir5 = new File((GalleryPath.getAbsolutePath()+"/natalie"));
+            dir5.mkdir();
+            File dir6 = new File((GalleryPath.getAbsolutePath()+"/robert"));
+            dir6.mkdir();
+            File dir7 = new File((GalleryPath.getAbsolutePath()+"/scarlet"));
+            dir7.mkdir();
+            File dir8 = new File((GalleryPath.getAbsolutePath()+"/tom"));
+            dir8.mkdir();
+            File dir9 = new File((GalleryPath.getAbsolutePath()+"/tony"));
+            dir9.mkdir();
+
+
             for (int count = 0; count < fields.length; count++) {
                 try {
                     OutputStream out = null;
                     int resourceID = fields[count].getInt(fields[count]);
                     InputStream in = context.getResources().openRawResource(resourceID);
                     Log.d(TAG,"here is the filename " +fields[count].getName());
-                    if (fields[count].getName().substring(0, fields[count].getName().length() - 1).equals("scarlet")) {
-                        File  file = new File(RootPath + "/" + GALLERY_FOLDER + "/" + "scarlet" + "/" + fields[count].getName() + ".jpg");
-                        out = new FileOutputStream(file);
-                    } else if (fields[count].getName().substring(0, fields[count].getName().length() - 1).equals("brad")) {
+                    if (fields[count].getName().substring(0, fields[count].getName().length() - 1).equals("brad")) {
                         File  file = new File(RootPath + "/" + GALLERY_FOLDER + "/" + "brad" + "/" + fields[count].getName() + ".jpg");
                         out = new FileOutputStream(file);
-                    } else if (fields[count].getName().substring(0, fields[count].getName().length() - 1).equals("chadwick")) {
-                        File  file = new File(RootPath + "/" + GALLERY_FOLDER + "/" + "chadwick" + "/" + fields[count].getName() + ".jpg");
+                    } else if (fields[count].getName().substring(0, fields[count].getName().length() - 1).equals("galgadot")) {
+                        File  file = new File(RootPath + "/" + GALLERY_FOLDER + "/" + "galgadot" + "/" + fields[count].getName() + ".jpg");
+                        out = new FileOutputStream(file);
+                    }else if (fields[count].getName().substring(0, fields[count].getName().length() - 1).equals("leonardo")) {
+                        File  file = new File(RootPath + "/" + GALLERY_FOLDER + "/" + "leonardo" + "/" + fields[count].getName() + ".jpg");
+                        out = new FileOutputStream(file);
+                    }else if (fields[count].getName().substring(0, fields[count].getName().length() - 1).equals("natalie")) {
+                        File  file = new File(RootPath + "/" + GALLERY_FOLDER + "/" + "natalie" + "/" + fields[count].getName() + ".jpg");
+                        out = new FileOutputStream(file);
+                    }else if (fields[count].getName().substring(0, fields[count].getName().length() - 1).equals("robert")) {
+                        File  file = new File(RootPath + "/" + GALLERY_FOLDER + "/" + "robert" + "/" + fields[count].getName() + ".jpg");
+                        out = new FileOutputStream(file);
+                    }else if (fields[count].getName().substring(0, fields[count].getName().length() - 1).equals("scarlet")) {
+                        File  file = new File(RootPath + "/" + GALLERY_FOLDER + "/" + "scarlet" + "/" + fields[count].getName() + ".jpg");
+                        out = new FileOutputStream(file);
+                    }else if (fields[count].getName().substring(0, fields[count].getName().length() - 1).equals("tom")) {
+                        File  file = new File(RootPath + "/" + GALLERY_FOLDER + "/" + "tom" + "/" + fields[count].getName() + ".jpg");
+                        out = new FileOutputStream(file);
+                    }else if (fields[count].getName().substring(0, fields[count].getName().length() - 1).equals("tony")) {
+                        File  file = new File(RootPath + "/" + GALLERY_FOLDER + "/" + "tony" + "/" + fields[count].getName() + ".jpg");
                         out = new FileOutputStream(file);
                     }
                     byte[] buf = new byte[2048];
@@ -229,12 +275,12 @@ public class Methods extends AppCompatActivity {
     //--------------------------------------------------------------------------------------------//
     // Method to print test the Attendance ArrayList
     //--------------------------------------------------------------------------------------------//
-
+    /*
     static public void Printest(){
         for(StudentInfo info:AttendanceList){
             Log.d(TAG,"just update info" + info);
         }
-    }
+    }*/
     //--------------------------------------------------------------------------------------------//
     // Method to save all Student attendance info from temporary ArrayList to CSV file inside LIST_SUBFOLDER
     //--------------------------------------------------------------------------------------------//
@@ -420,20 +466,20 @@ public class Methods extends AppCompatActivity {
                     }
 
                     int i=0;
-                    Log.d("Created featurelist", "size : "+FeatureList.size());
+                    //Log.d("Created featurelist", "size : "+FeatureList.size());
 
                     float[] feature = ArrayUtils.toPrimitive(FeatureList.toArray(new Float[numoffeature]), 0.0F);
                     for(float f:feature){
                         //Log.d("Scan feature item", ""+String.format("is %f",f));
                     }
 
-                    Log.d("Created featurelist", "finish for loop");
+                   // Log.d("Created featurelist", "finish for loop");
                     Classifier.Recognition Rec = new Classifier.Recognition(id, label, distance, feature);
                     ImageDatabase.put(Rec, Name);
-                    Log.d("Created featurelist", "finish update database ");
+                    //Log.d("Created featurelist", "finish update database ");
                 }
 
-                Log.d("Readtest method", "successfully update Imagedatabase using readtest " );
+               // Log.d("Readtest method", "successfully update Imagedatabase using readtest " );
             }finally{
                     scanner.close();
             }
@@ -452,20 +498,86 @@ public class Methods extends AppCompatActivity {
             Log.d("update attendance:","looking at name"+info.getName());
             if(info.getName().equals(studentname)){
                 info.setStatus("present");
-                Toast.makeText(context, "Attendance was updated", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "Attendance was updated", Toast.LENGTH_SHORT).show();
                 flag =true;
             }
 
         }
         if(!flag){
             Log.d("update attendance:","Flag is now false");
-            Toast.makeText(context, "Predicted name is not in Classlist",
-                                                                        Toast.LENGTH_LONG).show();
+            //Toast.makeText(context, "Predicted name is not in Classlist",
+                                                                       // Toast.LENGTH_LONG)show();
         }
+
+    }
+
+    public static void BatchInputFace(Context context){
+        Log.d("Method BatchInput","Enter batch input method");
+        Classifier.Recognition myBatchRecognition;
+        String IpName="";
+
+        File RootPath = context.getExternalFilesDir(null);
+        File GalleryPath = new File(RootPath.getAbsolutePath() +"/"+ GALLERY_FOLDER);
+        File[] Gallery = GalleryPath.listFiles();
+        Log.d("batchmodeinput","found gallery");
+        String filepath = new String();
+
+        int size = 0;
+        if(Gallery.length>0) {
+            for (File dir : Gallery) {
+                //save student image to archived folder if exists
+                if (!dir.isDirectory()) {
+                    dir.delete();
+                } else {
+                    IpName = dir.getName();
+                    Log.d("batchmodeinput","reading folder:"+IpName);
+                    String NameFolderPath = GalleryPath.getAbsolutePath()+"/"+IpName;
+                        File NameFolder = new File(NameFolderPath);
+                        ExtensionFilter PhotoFilter = new ExtensionFilter("jpg", "png");
+                        File[] AllPhotos = NameFolder.listFiles();
+                        Log.d("batchmodeinput","setup ok");
+                        Log.d("batchmodeinput","reading path"+NameFolder.getAbsolutePath());
+                        if(AllPhotos.length>0){
+                            for(File photo:AllPhotos){
+
+                                Log.d("batchmodeinput","enter allphoto loop size"+AllPhotos.length);
+                                //Bitmap source = Bitmap.createBitmap(resize_width, resize_height, Bitmap.Config.ARGB_8888);
+                                Bitmap sourceimage = BitmapFactory.decodeFile(photo.getAbsolutePath());
+                                Bitmap InputBmp = Bitmap.createScaledBitmap(sourceimage, resize_width, resize_height, true);
+                                //Start recognize inputface to collect Feature information.
+                                myBatchRecognition = myClassifier.FaceRecognizer(InputBmp,true,IpName);
+                                Log.d("batchmodeinput","found recognition"+myBatchRecognition);
+
+                                //Update database with output myRecognition and write down copy of Database
+                                ImageDatabase.put(myBatchRecognition,IpName);
+                                Log.d(TAG, "successfully update ImageDatabase info for"+IpName);
+                            }
+                        }else{
+
+                            Log.d(TAG, "cannot find photo in this folder name"+dir.getName());
+                        }
+
+                    }
+                }
+
+            }
+
+        Toast.makeText(context, "Successfully update ImageDatabase, its size now is:" + ImageDatabase.size(),
+                                                                                        Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Successfully update ImageDatabase size"+ImageDatabase.size());
+
+        Methods.WriteDatabase(ImageDatabase,context);
+        Log.d(TAG, "successfully write myrecognition info to data file of size"+ImageDatabase.size());
+
+        }
+
+
+
+
 
     }
 
 
 
 
-}
+
